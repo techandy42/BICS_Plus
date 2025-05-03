@@ -44,7 +44,7 @@ python -m src.test_benchmark \
 
   * `--provider` (required): LLM provider (e.g., `openai`, `groq`).
   * `--model` (required): Model name (e.g., `gpt-4o`, `o3-mini`).
-  * `--no-temperature` (optional): Exclude `temperature=0.0` from API calls (must apply for reasoning models, such as `o3-mini` from `openai`).
+  * `--no-temperature` (optional): Exclude `temperature=0.0` from API calls (must apply for reasoning models, such as `o4-mini` from `openai`).
   * `--iterations` (optional): Specific dataset indices (0–19) to process; defaults to all.
 * **Inputs:**
 
