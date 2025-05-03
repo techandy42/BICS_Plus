@@ -1,3 +1,19 @@
+"""
+Module: src.visualize_benchmark
+
+Load benchmark result JSONL files, compute average accuracies across context and depth dimensions, and generate a saved heatmap visualization.
+
+Functions:
+- load_results(result_dir): Load JSONL result files and aggregate accuracy by (context_length, depth_percentage).
+- compute_matrix(stats): Compute an average accuracy matrix and axis values from aggregated stats.
+- visualize(matrix, context_lengths, depth_percentages, provider, model): Create and save a heatmap of the accuracy data for a given provider/model.
+- main(): Parse CLI arguments, load data, compute metrics, and invoke visualization.
+
+Authors: Andrew Kim, Derek Sheen, Hokyung (Andy) Lee
+Emails: hyojaekim03@gmail.com (A. Kim), derek.s.prog@gmail.com (D. Sheen), techandy42@gmail.com (H. Lee)
+Date: May 3, 2025
+"""
+
 import os
 import json
 import argparse

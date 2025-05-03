@@ -1,3 +1,20 @@
+"""
+Module: src.test_benchmark
+
+A script to benchmark LLMs on bug-identification tasks by loading JSONL datasets, sending prompts, and computing accuracy over multiple iterations.
+
+Functions:
+- load_jsonl(file_path): Load a JSONL file and return its records as a list of dictionaries.
+- construct_prompt(code): Build the instruction prompt for the LLM given a code string.
+- completion_with_backoff(model_full, prompt, max_tokens, use_temperature): Call the LLM API with exponential backoff upon failures.
+- test_llm_on_jsonl(result_prefix, jsonl_prefix, provider, model, use_temperature, iterations=None): Run the LLM on JSONL datasets and record per-item accuracy over specified iterations.
+- main(): Parse command-line arguments and invoke the benchmarking process.
+
+Authors: Derek Sheen, Hokyung (Andy) Lee
+Emails: derek.s.prog@gmail.com (D. Sheen), techandy42@gmail.com (H. Lee)
+Date: May 3, 2025
+"""
+
 import os
 import json
 import argparse

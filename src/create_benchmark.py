@@ -1,3 +1,23 @@
+"""
+Module: src.create_benchmark
+
+This module generates benchmark datasets by constructing stacks of Python functions from the MBPP dataset,
+then inserting a randomly chosen buggy function at varying positions (depth percentages) and context sizes.
+
+Functions:
+- get_function_name(function_str): Extract the name of a Python function defined in a string.
+- printFuncNames(all_error_funcs): Print all extracted function names from a list of function definitions.
+- convert_codestack_to_string(codestack): Concatenate a list of function definitions into a single code string.
+- generate_code_stack(context_size, error_func): Build a list of functions whose total token count fits within context_size.
+- insert_buggy_function(codestack, error_function, depth_percentage): Insert the buggy function into the code stack at the specified depth.
+- run_tests(all_error_funcs, context_sizes, depth_sizes, results_file): Iterate over context and depth configurations to create JSONL entries.
+- main(): Define parameters, load error functions, and invoke run_tests to write output files.
+
+Authors: Derek Sheen, Hokyung (Andy) Lee
+Emails: derek.s.prog@gmail.com (D. Sheen), techandy42@gmail.com (H. Lee)
+Date: May 3, 2025
+"""
+
 import json
 import os
 import random
