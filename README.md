@@ -8,6 +8,16 @@ This repository is a benchmark for large language models (LLMs) on the bug-ident
 - At Y target depth (e.g., 0%, 25%, 50%, 75%, 100%, 0% being at the beginning of assembled code and 100% being at the beginning of assembled code), insert a buggy function.
 - The buggy functions are curated by running Claude-3.5-Sonnet on the MBPP dataset, and curating the outputs that fail the provided unit tests.
 
+## Environment Setup
+
+```bash
+conda create -n bics python=3.11
+conda activate bics
+# Or use any other Python virtual environment
+# From root directory
+pip install -e .
+```
+
 ## Usage
 
 Follow these steps to generate, benchmark, and visualize your datasets:
