@@ -11,6 +11,10 @@ setup(
         "datasets",
         "litellm",
         "tenacity",
+        "numpy",
+        "pandas",
+        "matplotlib",
+        "seaborn",
     ],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",

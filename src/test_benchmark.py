@@ -99,8 +99,8 @@ def main():
     model = args.model
     iterations = args.iterations
 
-    results_prefix = f"data/result/{provider}_{model}/bug_in_codestack_result"
-    dataset_prefix = "data/output/bug_in_codestack_dataset"
+    results_prefix = f"data/result/{provider}_{model}/bics_result"
+    dataset_prefix = "data/output/bics_dataset"
     test_llm_on_jsonl(results_prefix, dataset_prefix, provider, model, use_temperature, iterations)
 
 if __name__ == "__main__":

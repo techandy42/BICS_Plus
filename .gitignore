@@ -7,3 +7,4 @@ __pycache__/
 # Data files
 data/output/
 data/result/
+data/visualization/

@@ -97,7 +97,7 @@ def main():
         all_error_funcs = json.load(f)  
         printFuncNames(all_error_funcs)
 
-        results_file = "bug_in_codestack_dataset"
+        results_file = "bics_dataset"
         run_tests(all_error_funcs, context_sizes, depth_sizes, results_file)
 
 if __name__ == "__main__":
