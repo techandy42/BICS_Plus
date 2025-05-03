@@ -1,6 +1,6 @@
-# BICS Benchmark Results
+# BICS+ Benchmark
 
-This repository contains benchmark results for various large language models (LLMs) on the bug-identification task. The results are visualized as heatmap diagrams showing accuracy across different context lengths and target depth percentages.
+This repository is a benchmark for large language models (LLMs) on the bug-identification task, specifically long-context Python code made up of MBPP dataset containing LLM-generated semantic bugs to simulate real-life software bugs.
 
 ## Usage
 
