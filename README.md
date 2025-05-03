@@ -1,6 +1,12 @@
 # BICS+ Benchmark
 
-This repository is a benchmark for large language models (LLMs) on the bug-identification task, specifically long-context Python code made up of MBPP dataset containing LLM-generated semantic bugs to simulate real-life software bugs.
+This repository is a benchmark for large language models (LLMs) on the bug-identification task, specifically long-context Python code made up of the MBPP dataset containing LLM-generated semantic bugs to simulate real-life software bugs.
+
+## Benchmark Construction
+
+- Python functions from the MBPP dataset are assembled upto X context length (e.g., 500, 1K, 2K, 4K, 8K, 16K).
+- At Y target depth (e.g., 0%, 25%, 50%, 75%, 100%, 0% being at the beginning of assembled code and 100% being at the beginning of assembled code), insert a buggy function.
+- The buggy functions are curated by running Claude-3.5-Sonnet on the MBPP dataset, and curating the outputs that fail the provided unit tests.
 
 ## Usage
 
