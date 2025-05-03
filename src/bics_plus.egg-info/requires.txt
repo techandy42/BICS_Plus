@@ -1,7 +1,0 @@
-datasets
-litellm
-tenacity
-numpy
-pandas
-matplotlib
-seaborn

@@ -1,8 +1,0 @@
-LICENSE
-README.md
-setup.py
-src/bics_plus.egg-info/PKG-INFO
-src/bics_plus.egg-info/SOURCES.txt
-src/bics_plus.egg-info/dependency_links.txt
-src/bics_plus.egg-info/requires.txt
-src/bics_plus.egg-info/top_level.txt

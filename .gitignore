@@ -3,6 +3,7 @@
 
 # Cache files
 __pycache__/
+*.egg-info/
 
 # Data files
 data/output/
