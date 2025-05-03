@@ -1,0 +1,9 @@
+# Environment files
+.env
+
+# Cache files
+__pycache__/
+
+# Data files
+data/output/
+data/result/
