@@ -11,10 +11,12 @@ This repository is a benchmark for large language models (LLMs) on the bug-ident
 ## Environment Setup
 
 ```bash
+# Create virtual environment [Only need to do once]
 conda create -n bics python=3.11
+# Activate virtual environment
 conda activate bics
 # Or use any other Python virtual environment
-# From root directory
+# From root directory, run the following to install packages [Only need to do once]
 pip install -e .
 # Export environment variables
 source .env
