@@ -16,7 +16,12 @@ conda activate bics
 # Or use any other Python virtual environment
 # From root directory
 pip install -e .
+# Export environment variables
+source .env
 ```
+
+- Make sure to create `.env` and define the API Keys for the providers that you intend to test (e.g., `openai`, `groq`, etc.).
+- Each API Key should be exported (a.k.a., `export PROVIDER_API_KEY=<your-provider-api-key>`).
 
 ## Usage
 
