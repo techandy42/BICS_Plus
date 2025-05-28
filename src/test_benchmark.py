@@ -6,8 +6,8 @@ A script to benchmark LLMs on bug-identification tasks by loading JSONL datasets
 Functions:
 - load_jsonl(file_path): Load a JSONL file and return its records as a list of dictionaries.
 - construct_prompt(code): Build the instruction prompt for the LLM given a code string.
-- completion_with_backoff(model_full, prompt, max_tokens, use_temperature): Call the LLM API with exponential backoff upon failures.
-- test_llm_on_jsonl(result_prefix, jsonl_prefix, provider, model, use_temperature, iterations=None): Run the LLM on JSONL datasets and record per-item accuracy over specified iterations.
+- completion_with_backoff(model_full, prompt, max_tokens, use_temperature, use_high_reasoning): Call the LLM API with exponential backoff upon failures.
+- test_llm_on_jsonl(result_prefix, jsonl_prefix, provider, model, use_temperature, use_high_reasoning, iterations=None): Run the LLM on JSONL datasets and record per-item accuracy over specified iterations.
 - main(): Parse command-line arguments and invoke the benchmarking process.
 
 Authors: Derek Sheen, Hokyung (Andy) Lee
@@ -52,7 +52,7 @@ Please return the variable name of the function containing the bug, nothing else
     wait=wait_exponential(multiplier=1, min=1, max=60),
     stop=stop_after_attempt(5)
 )
-def completion_with_backoff(model_full, prompt, max_tokens, use_temperature):
+def completion_with_backoff(model_full: str, prompt: str, max_tokens: int, use_temperature: bool, use_high_reasoning: bool):
     """Call the LLM API with exponential backoff on failures."""
     params = {
         'model': model_full,
@@ -61,15 +61,17 @@ def completion_with_backoff(model_full, prompt, max_tokens, use_temperature):
     }
     if use_temperature:
         params['temperature'] = 0.0
+    if use_high_reasoning:
+        del params['max_tokens']
+        params['reasoning_effort'] = 'high'
     return text_completion(**params)
 
-def test_llm_on_jsonl(result_prefix, jsonl_prefix, provider, model, use_temperature, iterations=None):
+def test_llm_on_jsonl(result_prefix: str, jsonl_prefix: str, provider: str, model: str, use_temperature: bool, use_high_reasoning: bool, iterations: list[int] = None):
     """Run the LLM on JSONL datasets and record results with accuracy."""
     os.makedirs('data/result', exist_ok=True)
     os.makedirs(f'data/result/{provider}_{model}', exist_ok=True)
 
-    if iterations is None:
-        iterations = range(20)
+    iterations = range(20) if iterations is None else iterations
 
     for i in iterations:
         data = load_jsonl(f"{jsonl_prefix}_{i}.jsonl")
@@ -87,7 +89,8 @@ def test_llm_on_jsonl(result_prefix, jsonl_prefix, provider, model, use_temperat
                     model_full=f"{provider}/{model}",
                     prompt=prompt,
                     max_tokens=16000,
-                    use_temperature=use_temperature
+                    use_temperature=use_temperature,
+                    use_high_reasoning=use_high_reasoning,
                 )
 
                 prediction = response['choices'][0]['text'].strip()
@@ -108,6 +111,7 @@ def main():
     parser.add_argument('--provider', required=True, help="LLM provider (e.g., openai, anthropic)")
     parser.add_argument('--model', required=True, help="Model name (e.g., gpt-4.1-mini)")
     parser.add_argument('--no-temperature', action='store_true', help="Exclude temperature field from LLM calls")
+    parser.add_argument('--use-high-reasoning', action='store_true', help="Use high reasoning effort")
     parser.add_argument('--iterations', nargs='+', type=int, choices=list(range(20)), help="Dataset iteration(s) to run (0-19)")
     args = parser.parse_args()
 
@@ -115,10 +119,11 @@ def main():
     provider = args.provider
     model = args.model
     iterations = args.iterations
+    use_high_reasoning = args.use_high_reasoning
 
     results_prefix = f"data/result/{provider}_{model}/bics_result"
     dataset_prefix = "data/output/bics_dataset"
-    test_llm_on_jsonl(results_prefix, dataset_prefix, provider, model, use_temperature, iterations)
+    test_llm_on_jsonl(results_prefix, dataset_prefix, provider, model, use_temperature, use_high_reasoning, iterations)
 
 if __name__ == "__main__":
     main()

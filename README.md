@@ -54,6 +54,7 @@ python -m src.test_benchmark \
   --provider <provider> \
   --model <model> \
   [--no-temperature] \
+  [--use-high-reasoning] \
   [--iterations 0 5 12]
 ```
 
@@ -62,6 +63,7 @@ python -m src.test_benchmark \
   * `--provider` (required): LLM provider (e.g., `openai`, `groq`).
   * `--model` (required): Model name (e.g., `gpt-4o`, `o3-mini`).
   * `--no-temperature` (optional): Exclude `temperature=0.0` from API calls (must apply for reasoning models, such as `o4-mini` from `openai`).
+  * `--use-high-reasoning` (optional): Include `reasoning_effort='high'` for API calls (only applicable for Anthropic models with reasoning option).
   * `--iterations` (optional): Specific dataset indices (0–19) to process; defaults to all.
 * **Inputs:**
 
