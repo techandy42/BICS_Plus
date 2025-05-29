@@ -9,5 +9,7 @@ __pycache__/
 data/result/
 data/visualization/
 data/output/
+
+# Local files
 scripts/
 archive/
