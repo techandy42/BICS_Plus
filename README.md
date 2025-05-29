@@ -89,33 +89,9 @@ python -m src.visualize_benchmark \
 
 ## Benchmark Results
 
-### Groq DeepSeek (Llama 70B Distill)
+### Provider Model
 
-<img src="data/visualization_archive/groq_deepseek-r1-distill-llama-70b_benchmark.png" width="500px" alt="Groq Llama 70B Distill Benchmark">
-
-### Groq DeepSeek (Qwen 32B)
-
-<img src="data/visualization_archive/groq_deepseek-r1-distill-qwen-32b_benchmark.png" width="500px" alt="Groq Qwen 32B Benchmark">
-
-### Groq Llama 3.3 70B Versatile
-
-<img src="data/visualization_archive/groq_llama-3.3-70b-versatile_benchmark.png" width="500px" alt="Groq Llama 3.3 Versatile Benchmark">
-
-### OpenAI GPT-4.1-mini
-
-<img src="data/visualization_archive/openai_gpt-4.1-mini_benchmark.png" width="500px" alt="OpenAI GPT-4.1-mini Benchmark">
-
-### OpenAI GPT-4o
-
-<img src="data/visualization_archive/openai_gpt-4o_benchmark.png" width="500px" alt="OpenAI GPT-4o Benchmark">
-
-### OpenAI o1
-
-<img src="data/visualization_archive/openai_o1_benchmark.png" width="500px" alt="OpenAI o1 Benchmark">
-
-### OpenAI o3-mini
-
-<img src="data/visualization_archive/openai_o3-mini_benchmark.png" width="500px" alt="OpenAI o3-mini Benchmark">
+<img src="data/visualization_archive/provider-model_benchmark.png" width="500px" alt="Provider Model Benchmark">
 
 ## Contributing New Models
 
