@@ -37,6 +37,7 @@ def construct_prompt(code):
 The following is a code sample (e.g., source_code).
 One of the functions in this code contains a bug.
 Identify the function with the bug.
+Ignore any indentation or naming convention issues as they do not count as bugs.
 <instruction_header>
 
 <source_code>

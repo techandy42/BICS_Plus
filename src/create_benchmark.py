@@ -6,7 +6,6 @@ then inserting a randomly chosen buggy function at varying positions (depth perc
 
 Functions:
 - get_function_name(function_str): Extract the name of a Python function defined in a string.
-- printFuncNames(all_error_funcs): Print all extracted function names from a list of function definitions.
 - convert_codestack_to_string(codestack): Concatenate a list of function definitions into a single code string.
 - generate_code_stack(context_size, error_func): Build a list of functions whose total token count fits within context_size.
 - insert_buggy_function(codestack, error_function, depth_percentage): Insert the buggy function into the code stack at the specified depth.
@@ -15,7 +14,7 @@ Functions:
 
 Authors: Derek Sheen, Hokyung (Andy) Lee
 Emails: derek.s.prog@gmail.com (D. Sheen), techandy42@gmail.com (H. Lee)
-Date: May 3, 2025
+Date: May 28, 2025
 """
 
 import json
@@ -27,28 +26,25 @@ from tqdm import tqdm
 
 tqdm.pandas()
 
-# Load the MBPP dataset
-dataset = load_dataset('google-research-datasets/mbpp')
-dataset_functions = [example['code'] for example in dataset['train']]
-
-
 def get_function_name(function_str):
     match = re.match(r"def (\w+)\(", function_str)
     if match:
         return match.group(1)
     return None
 
-def printFuncNames(all_error_funcs):
-    func_names = []
-    for func in all_error_funcs:
-        func_names.append(get_function_name(func))
-    print(func_names)
-
 def convert_codestack_to_string(codestack):
-    str_codestack = ""
-    for function in codestack:
-        str_codestack += function + "\n"
-    return str_codestack.strip()
+    # Strip each function of leading/trailing newlines and join with two newlines
+    stripped_functions = [function.strip() for function in codestack]
+    str_codestack = "\n\n".join(stripped_functions)
+    # Remove all carriage return characters
+    str_codestack = str_codestack.replace('\r', '')
+    # Convert all tab characters to 4 spaces
+    str_codestack = str_codestack.replace('\t', '    ')
+    # Remove trailing whitespace from each line
+    lines = str_codestack.split('\n')
+    lines = [line.rstrip() for line in lines]
+    str_codestack = '\n'.join(lines)
+    return str_codestack
 
 def generate_code_stack(context_size, random_error_func):
     random.shuffle(dataset_functions)
@@ -109,14 +105,21 @@ def run_tests(all_error_funcs, context_sizes, depth_sizes, results_file):
                     f.write(json.dumps(entry) + '\n')    
 
 
+# Load the MBPP dataset
+dataset = load_dataset('google-research-datasets/mbpp')
+dataset_functions = [example['code'] for example in dataset['train']]
+
+
 def main():
+    # Set random seed for reproducible results
+    random.seed(42)
+    
     context_sizes = [500, 1000, 2000, 4000, 8000, 16000]
     depth_sizes = [0, 25, 50, 75, 100]  # Percentages as integers
 
     with open('data/source/all_error_funcs.json', 'r') as f:
-        all_error_funcs = json.load(f)  
-        printFuncNames(all_error_funcs)
-
+        all_error_funcs = json.load(f)
+        
         results_file = "bics_dataset"
         run_tests(all_error_funcs, context_sizes, depth_sizes, results_file)
 

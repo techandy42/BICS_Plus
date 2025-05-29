@@ -6,6 +6,8 @@ __pycache__/
 *.egg-info/
 
 # Data files
-data/output/
 data/result/
 data/visualization/
+data/output/
+scripts/
+archive/
