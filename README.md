@@ -89,9 +89,9 @@ python -m src.visualize_benchmark \
 
 ## Benchmark Results
 
-### Provider Model
+### OpenAI GPT-4.1
 
-<img src="data/visualization_archive/provider-model_benchmark.png" width="500px" alt="Provider Model Benchmark">
+<img src="data/visualization_archive/openai_gpt-4.1_benchmark.png" width="500px" alt="OpenAI GPT-4.1 Benchmark">
 
 ## Contributing New Models
 

@@ -151,7 +151,8 @@ def run_tests(all_error_func_entries, context_sizes, depth_sizes, results_file):
                     "code": str_codestack,
                     "func_error": error_func_name,
                     "context_length": context_length,
-                    "depth_percentage": depth_percentage
+                    "depth_percentage": depth_percentage,
+                    "num_functions": len(codestack)
                 }
 
                 # Add the entry to the list
