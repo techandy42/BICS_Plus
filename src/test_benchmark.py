@@ -101,11 +101,11 @@ def main():
     parser.add_argument('--iterations', nargs='+', type=int, choices=list(range(20)), help="Dataset iteration(s) to run (0-19)")
     args = parser.parse_args()
 
-    use_temperature = not args.no_temperature
     provider = args.provider
     model = args.model
-    iterations = args.iterations
+    use_temperature = not args.no_temperature
     use_high_reasoning = args.use_high_reasoning
+    iterations = args.iterations
 
     results_prefix = f"data/result/{provider}_{model}/bics_result"
     dataset_prefix = "data/output/bics_dataset"
