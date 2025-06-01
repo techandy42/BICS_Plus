@@ -4,7 +4,9 @@ import random
 import json
 import re
 
+
 tqdm.pandas()
+
 
 # Load the MBPP dataset
 dataset = load_dataset('google-research-datasets/mbpp')
@@ -17,17 +19,20 @@ def get_function_name(function_str):
         return match.group(1)
     return None
 
-def printFuncNames(all_error_funcs):
+
+def print_func_names(all_error_funcs):
     func_names = []
     for func in all_error_funcs:
         func_names.append(get_function_name(func))
     print(func_names)
+
 
 def convert_codestack_to_string(codestack):
     str_codestack = ""
     for function in codestack:
         str_codestack += function + "\n"
     return str_codestack.strip()
+
 
 def generate_code_stack(context_size, random_error_func):
     random.shuffle(dataset_functions)
@@ -47,6 +52,7 @@ def generate_code_stack(context_size, random_error_func):
         token_count += function_token_count
     
     return codestack
+
 
 def insert_buggy_function(codestack, error_function, depth_size):
     # Calculate the insertion index based on the depth
@@ -93,10 +99,11 @@ def main():
 
     with open('src/all_error_funcs.json', 'r') as f:
         all_error_funcs = json.load(f)  
-        printFuncNames(all_error_funcs)
+        print_func_names(all_error_funcs)
 
         results_file = "bug_in_codestack_dataset"
         run_tests(all_error_funcs, context_sizes, depth_sizes, results_file)
+
 
 if __name__ == "__main__":
     print("Starting the process...")

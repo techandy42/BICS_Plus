@@ -17,6 +17,7 @@ Emails: derek.s.prog@gmail.com (D. Sheen), techandy42@gmail.com (H. Lee)
 Date: May 28, 2025
 """
 
+
 import json
 import os
 import random
@@ -24,13 +25,16 @@ import re
 from datasets import load_dataset
 from tqdm import tqdm
 
+
 tqdm.pandas()
+
 
 def get_function_name(function_str):
     match = re.match(r"def (\w+)\(", function_str)
     if match:
         return match.group(1)
     return None
+
 
 def convert_codestack_to_string(codestack):
     # Strip each function of leading/trailing newlines and join with two newlines
@@ -45,6 +49,7 @@ def convert_codestack_to_string(codestack):
     lines = [line.rstrip() for line in lines]
     str_codestack = '\n'.join(lines)
     return str_codestack
+
 
 def generate_code_stack(context_size, random_error_func):
     random.shuffle(dataset_functions)
@@ -64,6 +69,7 @@ def generate_code_stack(context_size, random_error_func):
         token_count += function_token_count
     
     return codestack
+
 
 def insert_buggy_function(codestack, error_function, depth_size):
     # Calculate the insertion index based on the depth
@@ -122,6 +128,7 @@ def main():
         
         results_file = "bics_dataset"
         run_tests(all_error_funcs, context_sizes, depth_sizes, results_file)
+
 
 if __name__ == "__main__":
     print("Starting the process...")

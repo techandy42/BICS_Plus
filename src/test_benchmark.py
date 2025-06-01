@@ -6,7 +6,6 @@ A script to benchmark LLMs on bug-identification tasks by loading JSONL datasets
 Functions:
 - load_jsonl(file_path): Load a JSONL file and return its records as a list of dictionaries.
 - construct_prompt(code): Build the instruction prompt for the LLM given a code string.
-- completion_with_backoff(model_full, prompt, max_tokens, use_temperature, use_high_reasoning): Call the LLM API with exponential backoff upon failures.
 - test_llm_on_jsonl(result_prefix, jsonl_prefix, provider, model, use_temperature, use_high_reasoning, iterations=None): Run the LLM on JSONL datasets and record per-item accuracy over specified iterations.
 - main(): Parse command-line arguments and invoke the benchmarking process.
 
@@ -15,12 +14,13 @@ Emails: derek.s.prog@gmail.com (D. Sheen), techandy42@gmail.com (H. Lee)
 Date: May 3, 2025
 """
 
+
 import os
 import json
 import argparse
-from litellm import text_completion
 from tqdm import tqdm
-from tenacity import retry, wait_exponential, stop_after_attempt
+from .llm_utils import completion_with_backoff
+
 
 def load_jsonl(file_path):
     """Load a JSONL file and return a list of records."""
@@ -29,6 +29,7 @@ def load_jsonl(file_path):
         for line in f:
             data.append(json.loads(line.strip()))
     return data
+
 
 def construct_prompt(code):
     """Build the instruction prompt for the LLM."""
@@ -49,23 +50,6 @@ Please return the variable name of the function containing the bug, nothing else
 <output_format>
 """
 
-@retry(
-    wait=wait_exponential(multiplier=1, min=1, max=60),
-    stop=stop_after_attempt(5)
-)
-def completion_with_backoff(model_full: str, prompt: str, max_tokens: int, use_temperature: bool, use_high_reasoning: bool):
-    """Call the LLM API with exponential backoff on failures."""
-    params = {
-        'model': model_full,
-        'prompt': prompt,
-        'max_tokens': max_tokens,
-    }
-    if use_temperature:
-        params['temperature'] = 0.0
-    if use_high_reasoning:
-        del params['max_tokens']
-        params['reasoning_effort'] = 'high'
-    return text_completion(**params)
 
 def test_llm_on_jsonl(result_prefix: str, jsonl_prefix: str, provider: str, model: str, use_temperature: bool, use_high_reasoning: bool, iterations: list[int] = None):
     """Run the LLM on JSONL datasets and record results with accuracy."""
@@ -107,6 +91,7 @@ def test_llm_on_jsonl(result_prefix: str, jsonl_prefix: str, provider: str, mode
                 item['accuracy'] = round(correct / total * 100, 2)
                 f.write(json.dumps(item) + '\n')
 
+
 def main():
     parser = argparse.ArgumentParser(description="Run LLM benchmark on JSONL datasets.")
     parser.add_argument('--provider', required=True, help="LLM provider (e.g., openai, anthropic)")
@@ -125,6 +110,7 @@ def main():
     results_prefix = f"data/result/{provider}_{model}/bics_result"
     dataset_prefix = "data/output/bics_dataset"
     test_llm_on_jsonl(results_prefix, dataset_prefix, provider, model, use_temperature, use_high_reasoning, iterations)
+
 
 if __name__ == "__main__":
     main()
