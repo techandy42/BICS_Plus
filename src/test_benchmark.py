@@ -35,10 +35,10 @@ def construct_prompt(code):
     """Build the instruction prompt for the LLM."""
     return f"""
 <instruction_header>
-The following is a code sample (e.g., source_code).
-One of the functions in this code contains a bug.
-Identify the function with the bug.
-Ignore any indentation or naming convention issues as they do not count as bugs.
+- The following is a code sample (e.g., source_code).
+- One of the functions in this code contains a bug.
+- Identify the function with the bug.
+- Ignore any indentation mismatches or errors as source of bugs.
 <instruction_header>
 
 <source_code>
@@ -46,7 +46,7 @@ Ignore any indentation or naming convention issues as they do not count as bugs.
 <source_code>
 
 <output_format>
-Please return the variable name of the function containing the bug, nothing else. Do not alter the name of the function in any way. If there is no bug, return 'none'.
+- Please return the variable name of the function containing the bug, nothing else. Do not alter the name of the function in any way. If there is no bug, return 'none'.
 <output_format>
 """
 

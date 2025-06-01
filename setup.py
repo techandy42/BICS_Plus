@@ -15,6 +15,7 @@ setup(
         "pandas==2.2.3",
         "matplotlib==3.10.1",
         "seaborn==0.13.2",
+        "tiktoken==0.9.0",
     ],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",

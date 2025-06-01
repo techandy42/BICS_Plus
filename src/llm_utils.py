@@ -14,6 +14,16 @@ Date: May 31, 2025
 
 from tenacity import retry, wait_exponential, stop_after_attempt
 from litellm import text_completion
+import tiktoken
+
+
+def get_encoder() -> tiktoken.Encoding:
+    return tiktoken.get_encoding("cl100k_base")
+
+
+def count_tokens(text: str, encoder: tiktoken.Encoding) -> int:
+    tokens = encoder.encode(text)
+    return len(tokens)
 
 
 @retry(
