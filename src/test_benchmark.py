@@ -35,10 +35,11 @@ def construct_prompt(code):
     """Build the instruction prompt for the LLM."""
     return f"""
 <instruction_header>
-- The following is a code sample (e.g., source_code).
-- One of the functions in this code contains a bug.
-- Identify the function with the bug.
-- Ignore any indentation mismatches or errors as source of bugs.
+- You will analyze Python source code containing multiple functions.
+- Exactly one function contains a bug that makes it behave incorrectly.
+- Each function has a description above it explaining its intended behavior.
+- Compare each function's implementation against its description to identify the buggy one.
+- Focus on logical errors, not formatting or indentation issues.
 <instruction_header>
 
 <source_code>
@@ -46,7 +47,7 @@ def construct_prompt(code):
 <source_code>
 
 <output_format>
-- Please return the variable name of the function containing the bug, nothing else. Do not alter the name of the function in any way. If there is no bug, return 'none'.
+- Return only the name of the buggy function.
 <output_format>
 """
 

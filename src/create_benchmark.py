@@ -179,7 +179,7 @@ def main():
     # Set random seed for reproducible results
     random.seed(42)
     
-    context_sizes = [1000, 2000, 4000, 8000, 16000]
+    context_sizes = [500, 1000, 2000, 4000, 8000, 16000]
     depth_sizes = [0, 25, 50, 75, 100]  # Percentages as integers
 
     # Load error functions from JSONL file
