@@ -71,15 +71,30 @@ def test_llm_on_jsonl(result_prefix: str, jsonl_prefix: str, provider: str, mode
                 expected = item.get('func_error', '')
                 prompt = construct_prompt(code)
 
-                response = completion_with_backoff(
-                    model_full=f"{provider}/{model}",
-                    prompt=prompt,
-                    max_tokens=16000,
-                    use_temperature=use_temperature,
-                    use_high_reasoning=use_high_reasoning,
-                )
-
-                prediction = response['choices'][0]['text'].strip()
+                # Retry logic for getting a valid response
+                max_retries = 5
+                prediction = None
+                
+                for attempt in range(max_retries):
+                    response = completion_with_backoff(
+                        model_full=f"{provider}/{model}",
+                        prompt=prompt,
+                        max_tokens=16000,
+                        use_temperature=use_temperature,
+                        use_high_reasoning=use_high_reasoning,
+                    )
+                    
+                    # Check if response text is not None
+                    if response['choices'][0]['text'] is not None:
+                        prediction = response['choices'][0]['text']
+                        break
+                
+                # If all retries failed, raise an error
+                if prediction is None:
+                    raise ValueError(f"Failed to get a valid response after {max_retries} attempts for code sample")
+                
+                # Apply strip() after we know prediction is not None
+                prediction = prediction.strip()
                 item['guess'] = prediction
 
                 if expected and expected in prediction:
