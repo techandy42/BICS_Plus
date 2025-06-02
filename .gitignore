@@ -9,6 +9,7 @@ __pycache__/
 data/result/
 data/visualization/
 data/output/
+data/cleaned_mbpp/
 
 # Local files
 scripts/

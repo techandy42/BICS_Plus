@@ -16,6 +16,8 @@ setup(
         "matplotlib==3.10.1",
         "seaborn==0.13.2",
         "tiktoken==0.9.0",
+        "huggingface_hub==0.31.2",
+        "pytest==8.3.4",
     ],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
