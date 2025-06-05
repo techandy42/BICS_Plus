@@ -67,12 +67,11 @@ def get_function_name(test_item: str) -> str | None:
     return None
 
 
-def get_codegen_prompt(text: str, function_name: str, test_list: list[str]) -> str:
+def get_codegen_prompt(prompt: str, function_name: str, test_list: list[str]) -> str:
     test_list_str = "\n".join(test_list)
 
     return dedent(f"""
-Instructions:
-\"\"\"
+<instructions>
 - Write a Python function with name "{function_name}" that solves the following problem.
 - You may import any standard library modules.
 - If the sample test cases use any custom classes, you must declare them in your code and use them accordingly in your "{function_name}" function.
@@ -80,28 +79,26 @@ Instructions:
 - Your final output should be a valid Python function definition.
 - Do not include any other text or comments in your response.
 - Do not include any markdown tags in your response.
-\"\"\"
+</instructions>
 
-Problem:
-\"\"\"
-{text}
-\"\"\"
+<problem>
+{prompt}
+</problem>
 
-Sample Test Cases:
-\"\"\"
+<sample_test_cases>
 {test_list_str}
-\"\"\"
+</sample_test_cases>
 """).strip('\n')
 
 
-def run_tests(generated_code: str, test_setup_code: str, test_list: list[str], challenge_test_list: list[str]) -> bool:
+def run_tests(generated_code: str, test_imports: str, test_list: list[str]) -> bool:
     """
     Run the generated code with tests in a Python subprocess.
     
     Returns:
         True if code runs without exceptions, False otherwise
     """
-    code_to_test = generated_code + "\n\n" + test_setup_code + "\n\n" + "\n".join(test_list) + "\n\n" + "\n".join(challenge_test_list)
+    code_to_test = generated_code + "\n\n" + "\n".join(test_imports) + "\n\n" + "\n".join(test_list)
     
     try:
         # Create a temporary file to write the code
@@ -142,46 +139,91 @@ def run_tests(generated_code: str, test_setup_code: str, test_list: list[str], c
 
 
 def main():
-    dataset = load_dataset("mbpp", split="train")
-    failed_tests = []
-    for i in tqdm(range(len(dataset))):
-        item = dataset[i]
-        task_id = item['task_id']
-        text = item['text']
-        test_setup_code = item['test_setup_code']
-        test_list = item['test_list']
-        challenge_test_list = item['challenge_test_list']
-        if len(test_list) == 0:
-            continue
-        function_name = get_function_name(test_list[0])
-        if function_name is None:
-            continue
-        prompt = get_codegen_prompt(text, function_name, test_list)
-        response = completion_with_backoff(
-            model_full="openai/gpt-4.1",
-            prompt=prompt,
-            max_tokens=4096,
-            use_temperature=True,
-            use_high_reasoning=False
-        )
-        generated_code = response['choices'][0]['text']
-        if not run_tests(generated_code, test_setup_code, test_list, challenge_test_list):
-            failed_tests.append({
-                "task_id": task_id,
-                "generated_code": generated_code,
-            })
+    # List of models to use
+    models = [
+        "openai/gpt-4.1",
+        "anthropic/claude-sonnet-4-20250514",
+    ]
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    workspace_root = os.path.dirname(script_dir)
-    output_file_path = os.path.join(workspace_root, "data", "source", "error_funcs.jsonl")
+    dataset = load_dataset("google-research-datasets/mbpp", "sanitized")
+    dataset_test = dataset['test']
+    dataset_test = dataset_test.shuffle(seed=42)
     
-    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+    # Calculate dataset split for each model
+    total_items = len(dataset_test)
+    items_per_model = total_items // len(models)
+    
+    print(f"Total dataset items: {total_items}")
+    print(f"Items per model: {items_per_model}")
+    print(f"Models: {models}")
+    
+    failed_tests = []
+    
+    for model_idx, model in enumerate(models):
+        print(f"\nProcessing with model: {model}")
+        
+        # Calculate start and end indices for this model
+        start_idx = model_idx * items_per_model
+        if model_idx == len(models) - 1:  # Last model gets any remaining items
+            end_idx = total_items
+        else:
+            end_idx = (model_idx + 1) * items_per_model
+        
+        print(f"Processing items {start_idx} to {end_idx - 1}")
+        
+        # Process the assigned subset for this model
+        for i in tqdm(range(start_idx, end_idx), desc=f"Model {model_idx + 1}/{len(models)}"):
+            item = dataset_test[i]
+            prompt = item['prompt']
+            test_imports = item['test_imports']
+            test_list = item['test_list']
+            if len(test_list) == 0:
+                continue
+            function_name = get_function_name(test_list[0])
+            if function_name is None:
+                continue
+            codegen_prompt = get_codegen_prompt(prompt, function_name, test_list)
+            response = completion_with_backoff(
+                model_full=model,
+                prompt=codegen_prompt,
+                max_tokens=4096,
+                use_temperature=True,
+                use_high_reasoning=False
+            )
+            generated_code = response['choices'][0]['text']
+            if generated_code and not run_tests(generated_code, test_imports, test_list):
+                failed_tests.append({
+                    "source_file": item['source_file'],
+                    "task_id": item['task_id'],
+                    "prompt": item['prompt'],
+                    "code": item['code'],
+                    "generated_code": generated_code,
+                    "test_imports": test_imports,
+                    "test_list": test_list,
+                    "model": model,
+                })
+
+    output_dir = "data/source"
+    output_file_path = os.path.join(output_dir, "error_funcs.jsonl")
+    
+    os.makedirs(output_dir, exist_ok=True)
 
     with open(output_file_path, "w") as f:
         for failed_test in failed_tests:
             f.write(json.dumps(failed_test) + "\n")
 
-    print(f"Saved {len(failed_tests)} failed tests to {output_file_path}")
+    print(f"\nSaved {len(failed_tests)} failed tests to {output_file_path}")
+    
+    # Print summary by model
+    model_counts = {}
+    for failed_test in failed_tests:
+        model = failed_test['model']
+        model_counts[model] = model_counts.get(model, 0) + 1
+    
+    print("\nFailed tests by model:")
+    for model in models:
+        count = model_counts.get(model, 0)
+        print(f"  {model}: {count} failed tests")
 
 
 if __name__ == "__main__":
