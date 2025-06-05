@@ -34,7 +34,7 @@ Output:
 - Creates data/source/reasonable_error_funcs.jsonl with filtered reasonable errors
 
 Usage:
-    python -m src.data_cleaning.judge_error_funcs
+    python -m src.data_collection.judge_error_funcs
 
 Dependencies:
     - datasets: For loading MBPP dataset context

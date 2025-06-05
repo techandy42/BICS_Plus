@@ -25,7 +25,7 @@ Output:
 - Creates data/source/error_funcs.jsonl with failed test cases for error analysis
 
 Usage:
-    python -m src.data_cleaning.collect_error_funcs
+    python -m src.data_collection.collect_error_funcs
 
 Dependencies:
     - datasets: For loading MBPP dataset
