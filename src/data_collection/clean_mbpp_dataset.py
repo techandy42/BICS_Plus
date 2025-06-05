@@ -1,8 +1,7 @@
-from datasets import load_dataset, Dataset
-import re
+from datasets import load_dataset, Dataset, DatasetDict
 import os
 import argparse
-from huggingface_hub import HfApi, login
+from huggingface_hub import login
 
 def check_valid_indentation(code: str) -> bool:
     """
@@ -38,31 +37,57 @@ def check_valid_indentation(code: str) -> bool:
             
     return True
 
-def standardize_item(item):
+def check_valid_colon(code):
     """
-    Standardize an item to ensure consistent schema across splits.
-    Handles null values and converts them to appropriate empty values.
+    Check if the spacing before colons is proper in Python code.
+    
+    Args:
+        code (str): The Python code to check
+        
+    Returns:
+        bool: True if all colons have proper spacing, False otherwise
     """
-    standardized = {
-        'task_id': item['task_id'],
-        'text': item['text'],
-        'code': item['code'],
-        'test_list': item['test_list'] if item['test_list'] is not None else [],
-        'test_setup_code': item['test_setup_code'] if item['test_setup_code'] is not None else '',
+    # Keywords that should end with a colon and cannot have space before it
+    colon_keywords = {
+        'def', 'class', 'if', 'elif', 'else', 'for', 'while', 
+        'try', 'except', 'finally', 'with', 'match', 'case'
     }
     
-    # Handle challenge_test_list - it might be null or contain null values
-    challenge_list = item.get('challenge_test_list', [])
-    if challenge_list is None:
-        standardized['challenge_test_list'] = []
-    else:
-        # Filter out null values and ensure all are strings
-        standardized['challenge_test_list'] = [
-            str(test) if test is not None else '' 
-            for test in challenge_list
-        ]
+    lines = code.split('\n')
     
-    return standardized
+    for line in lines:
+        stripped_line = line.strip()
+        
+        # Skip empty lines and comments
+        if not stripped_line or stripped_line.startswith('#'):
+            continue
+            
+        # Check if line ends with colon
+        if stripped_line.endswith(':'):
+            # Check if line starts with any of the colon keywords
+            for keyword in colon_keywords:
+                if stripped_line.startswith(keyword):
+                    # Check if there's a space before the colon
+                    if stripped_line.endswith(' :'):
+                        return False
+                    break
+            else:
+                # Handle special cases like lambda, list comprehensions, etc.
+                # that might contain colons but don't start with keywords
+                
+                # Check for lambda expressions
+                if 'lambda' in stripped_line and stripped_line.endswith(' :'):
+                    return False
+                    
+                # Check for dictionary definitions or other cases
+                # where we might have a colon at the end
+                words = stripped_line.split()
+                if len(words) >= 2 and words[-1] == ':':
+                    # If the second-to-last word is a keyword that should have a colon
+                    if any(keyword in stripped_line for keyword in colon_keywords):
+                        return False
+    
+    return True
 
 def main():
     # Parse command-line arguments
@@ -82,25 +107,23 @@ def main():
     
     # Load the MBPP dataset
     print("Loading MBPP dataset...")
-    dataset = load_dataset('google-research-datasets/mbpp')
+    dataset = load_dataset('google-research-datasets/mbpp', 'sanitized')
     
-    print("\nProcessing train split...")
-    train_data = dataset['train']
+    print("\nProcessing test split...")
+    test_data = dataset['test']
     
     # Filter items with valid indentation
     valid_items = []
     invalid_count = 0
     
-    for i, item in enumerate(train_data):
+    for i, item in enumerate(test_data):
         if i % 100 == 0:
-            print(f"  Processing item {i}/{len(train_data)}...")
-            
+            print(f"  Processing item {i}/{len(test_data)}...")
+
         code = item['code']
         
-        if check_valid_indentation(code):
-            # Standardize the item before adding
-            standardized_item = standardize_item(item)
-            valid_items.append(standardized_item)
+        if check_valid_indentation(code) and check_valid_colon(code):
+            valid_items.append(item)
         else:
             invalid_count += 1
             
@@ -124,7 +147,9 @@ def main():
         
         # Push to hub
         try:
-            cleaned_dataset.push_to_hub(args.repo_name, private=False)
+            # Create a DatasetDict with explicit "test" split
+            dataset_dict = DatasetDict({"test": cleaned_dataset})
+            dataset_dict.push_to_hub(args.repo_name, private=False)
             print(f"Successfully uploaded dataset to https://huggingface.co/datasets/{args.repo_name}")
         except Exception as e:
             print(f"Error uploading to HuggingFace: {e}")
@@ -142,8 +167,8 @@ def main():
         print(f"Dataset saved to {output_dir}/")
     
     print("\nDataset cleaning complete!")
-    print(f"Original train dataset size: {len(train_data)} items")
-    print(f"Cleaned train dataset size: {len(cleaned_dataset)} items")
+    print(f"Original test dataset size: {len(test_data)} items")
+    print(f"Cleaned test dataset size: {len(cleaned_dataset)} items")
 
 if __name__ == '__main__':
     main()

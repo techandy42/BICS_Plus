@@ -83,6 +83,9 @@ def generate_code_stack(context_size, random_error_func):
         codestack.append(function_with_description)
         token_count += function_token_count
     
+    if token_count + function_token_count + random_error_func_tokens < context_size * 0.75:
+        raise ValueError(f"Code stack is too small: {token_count + function_token_count + random_error_func_tokens} < {context_size * 0.8}")
+
     return codestack
 
 
@@ -165,9 +168,9 @@ def run_tests(all_error_func_entries, context_sizes, depth_sizes, results_file):
 
 
 # Load the MBPP dataset
-dataset = load_dataset('techandy42/mbpp-clean-indentation')
+dataset = load_dataset('google-research-datasets/mbpp', 'sanitized')
 # Create a mapping from task_id to text for error function lookups
-task_id_to_text = {example['task_id']: example['text'] for example in dataset['train']}
+task_id_to_text = {example['task_id']: example['prompt'] for example in dataset['test']}
 
 # Initialize global variables
 dataset_functions = []
@@ -180,7 +183,7 @@ def main():
     # Set random seed for reproducible results
     random.seed(42)
     
-    context_sizes = [500, 1000, 2000, 4000, 8000, 16000]
+    context_sizes = [500, 1000, 2000, 4000, 8000]
     depth_sizes = [0, 25, 50, 75, 100]  # Percentages as integers
 
     # Load error functions from JSONL file
@@ -194,8 +197,8 @@ def main():
     
     # Filter dataset_functions to exclude items with task_ids in error_task_ids
     dataset_functions = [
-        (example['code'], example['text']) 
-        for example in dataset['train'] 
+        (example['code'], example['prompt']) 
+        for example in dataset['test'] 
         if example['task_id'] not in error_task_ids
     ]
         
