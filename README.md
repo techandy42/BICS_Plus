@@ -89,16 +89,16 @@ python -m src.visualize_benchmark \
 
 ## Gathering Buggy Functions
 
-* Running `python -m src.collect_error_funcs` creates `data/source/error_funcs.jsonl` that contains all of the buggy functions from running `GPT-4.1` on the MBPP dataset.
-* Running `python -m src.judge_error_funcs` evaluates the data in `data/source/error_funcs.jsonl` and saves the result in `data/source/reasonable_error_funcs.jsonl` by using an LLM Judge (`o4-mini`) to determine which buggy functions is high-quality (e.g., logic error) versus low-quality (e.g., formatting issues).
+* Running `python -m src.data_cleaning.collect_error_funcs` creates `data/source/error_funcs.jsonl` that contains all of the buggy functions from running `GPT-4.1` on the MBPP dataset.
+* Running `python -m src.data_cleaning.judge_error_funcs` evaluates the data in `data/source/error_funcs.jsonl` and saves the result in `data/source/reasonable_error_funcs.jsonl` by using an LLM Judge (`o4-mini`) to determine which buggy functions is high-quality (e.g., logic error) versus low-quality (e.g., formatting issues).
 * `data/source/reasonable_error_funcs.jsonl` is used to construct the test data in `data/output/` folder when running `python -m src.create_benchmark`.
 * Since the `data/source/` folder and its' files are provided in the repo, you don't have to run the above steps - in fact, please don't to keep the experiment consistent ;).
 
 ## Benchmark Results
 
-### OpenAI GPT-4.1
+### Provider Model
 
-<img src="data/visualization_archive/openai_gpt-4.1_benchmark.png" width="500px" alt="OpenAI GPT-4.1 Benchmark">
+<img src="data/visualization_archive/provider_model_benchmark.png" width="500px" alt="Provider Model Benchmark">
 
 ## Contributing New Models
 

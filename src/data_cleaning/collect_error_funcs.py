@@ -25,7 +25,7 @@ Output:
 - Creates data/source/error_funcs.jsonl with failed test cases for error analysis
 
 Usage:
-    python -m src.collect_error_funcs
+    python -m src.data_cleaning.collect_error_funcs
 
 Dependencies:
     - datasets: For loading MBPP dataset
@@ -45,7 +45,7 @@ import tempfile
 import os
 from tqdm import tqdm
 from datasets import load_dataset
-from .llm_utils import completion_with_backoff
+from ..llm_utils import completion_with_backoff
 from textwrap import dedent
 
 

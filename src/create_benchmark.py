@@ -165,7 +165,7 @@ def run_tests(all_error_func_entries, context_sizes, depth_sizes, results_file):
 
 
 # Load the MBPP dataset
-dataset = load_dataset('google-research-datasets/mbpp')
+dataset = load_dataset('techandy42/mbpp-clean-indentation')
 # Create a mapping from task_id to text for error function lookups
 task_id_to_text = {example['task_id']: example['text'] for example in dataset['train']}
 
