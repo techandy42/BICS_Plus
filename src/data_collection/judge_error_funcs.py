@@ -54,7 +54,7 @@ from ..llm_utils import completion_with_backoff
 from .collect_error_funcs import get_function_name
 
 
-def get_code_judge_prompt(generated_code: str, function_name: str, prompt: str, test_imports: list[str], test_list: list[str]) -> str:
+def get_code_judge_prompt(generated_code: str, ground_truth_code: str, function_name: str, prompt: str, test_imports: list[str], test_list: list[str]) -> str:
     test_list_str = "\n".join(test_list)
     test_imports_str = "\n".join(test_imports)
 
@@ -62,6 +62,7 @@ def get_code_judge_prompt(generated_code: str, function_name: str, prompt: str, 
 Instructions:
 \"\"\"
 - The generated code is incorret and fails to pass the test cases.
+- The ground truth code is the correct code that should pass the test cases.
 - Your job is to determine if the error is reasonable or ridiculous.
 - An error is reasonable if it's logical error.
 - An error is ridiculous if:
@@ -70,15 +71,20 @@ Instructions:
     - The logic in the code is unreasonable given the problem statement.
     - The error is due to Python syntax error that a linter would catch.
 - Return your response as valid JSON with the following fields:
-    - "cause_of_error": str, detailed analysis of the error in the generated code.
+    - "cause_of_error": str, detailed analysis of the error in the generated code, based on comparing it to the ground truth code and examining the test cases.
     - "final_verdict": str, "reasonable" or "ridiculous".
 - Do not include markdown tags in your response.
 - Make sure your response can be parsed into valid JSON without any post-processing.
 \"\"\"
-                  
+
 Generated Code:
 \"\"\"
 {generated_code}
+\"\"\"
+
+Ground Truth Code:
+\"\"\"
+{ground_truth_code}
 \"\"\"
 
 Problem Statement:
@@ -122,13 +128,14 @@ def main():
         
         # Read all fields from the JSON item
         task_id = failed_test["task_id"]
+        ground_truth_code = failed_test["code"]
         generated_code = failed_test["generated_code"]
         prompt = failed_test["prompt"]
         test_imports = failed_test["test_imports"]
         test_list = failed_test["test_list"]
         
         function_name = get_function_name(test_list[0])
-        prompt_text = get_code_judge_prompt(generated_code, function_name, prompt, test_imports, test_list)
+        prompt_text = get_code_judge_prompt(generated_code, ground_truth_code, function_name, prompt, test_imports, test_list)
         
         # Retry logic for JSON parsing errors
         max_retries = 10

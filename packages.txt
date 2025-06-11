@@ -1,0 +1,4 @@
+conda create -n bics python=3.11
+conda activate bics
+conda install datasets
+pip install datasets
